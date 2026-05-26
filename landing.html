@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥗 飲食熱量管理系統 - 智能飲食追蹤平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* 導航欄 */
+        nav {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        nav .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+            text-decoration: none;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        nav .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav .nav-links a:hover {
+            color: #2ecc71;
+        }
+
+        nav .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            background: white;
+            color: #2ecc71;
+            border: 2px solid #2ecc71;
+        }
+
+        .btn-login:hover {
+            background: #f0f9f5;
+        }
+
+        .btn-signup {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-signup:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        /* 英雄區域 */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .hero .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .hero .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #2ecc71;
+            color: white;
+            padding: 14px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            padding: 14px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* 功能區域 */
+        .features {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .features .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #2ecc71;
+            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* 預算管理區域 */
+        .budget-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .budget-section .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .budget-section .section-title {
+            color: white;
+        }
+
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .budget-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .budget-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .budget-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .budget-card .amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .budget-card p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        /* 統計區域 */
+        .stats {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .stats .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item h2 {
+            font-size: 48px;
+            color: #2ecc71;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .stat-item p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* 評價區域 */
+        .testimonials {
+            padding: 80px 20px;
+            background: #f8f9fa;
+        }
+
+        .testimonials .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .stars {
+            color: #ffc107;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .testimonial-text {
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+            line-height: 1.8;
+        }
+
+        .testimonial-author {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* CTA 區域 */
+        .cta-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-section .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-section h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        /* 頁腳 */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 50px 20px 20px;
+        }
+
+        footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #2ecc71;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #34495e;
+            padding-top: 20px;
+            text-align: center;
+            color: #95a5a6;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            nav .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .cta-section h2 {
+                font-size: 28px;
+            }
+
+            .stat-item h2 {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 導航欄 -->
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">🥗 熱量管理</a>
+            <ul class="nav-links">
+                <li><a href="#features">功能</a></li>
+                <li><a href="#budget">預算管理</a></li>
+                <li><a href="#stats">統計</a></li>
+                <li><a href="#testimonials">評價</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="/login" class="btn btn-login">登入</a>
+                <a href="/register" class="btn btn-signup">免費註冊</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄區域 -->
+    <section class="hero">
+        <div class="container">
+            <h1>🥗 智能飲食熱量管理系統</h1>
+            <p>記錄每一口食物，掌握每一份熱量，實現健康飲食目標</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn-primary">立即開始</a>
+                <a href="#features" class="btn-secondary">了解更多</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能區域 -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">✨ 核心功能</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>每日飲食記帳</h3>
+                    <p>輕鬆記錄每日飲食，自動計算熱量、蛋白質、碳水化合物等營養成分</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🍎</div>
+                    <h3>6大食物類別</h3>
+                    <p>涵蓋水果、蔬菜、乳品、油脂與堅果、豆魚蛋肉、全穀雜糧</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✏️</div>
+                    <h3>自訂食物</h3>
+                    <p>新增並編輯自訂食物的熱量，系統自動保存歷史記錄方便快速選擇</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💧</div>
+                    <h3>飲水管理</h3>
+                    <p>記錄每日飲水量，1杯 = 250ml，進度條視覺化顯示達成情況</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>月度報表</h3>
+                    <p>查看熱量盈虧圖表、月度統計、體重變化估計和飲水達成率</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>安全認證</h3>
+                    <p>使用 Flask Session 進行用戶認證，密碼安全哈希存儲</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 預算管理區域 -->
+    <section class="budget-section" id="budget">
+        <div class="container">
+            <h2 class="section-title">💰 靈活的預算管理模式</h2>
+            <div class="budget-grid">
+                <div class="budget-card">
+                    <h3>📌 無特殊預算</h3>
+                    <p>每日預算 = TDEE（每日總消耗熱量）</p>
+                    <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">適合穩定飲食控制的用戶</p>
+                </div>
+                <div class="budget-card">
+                    <h3>🎉 發薪日模式</h3>
+                    <div class="amount">+500 kcal</div>
+                    <p>在指定星期幾自動加上 500 kcal 特別預算</p>
+                    <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">例：每週六為發薪日，享受大餐</p>
+                </div>
+                <div class="budget-card">
+                    <h3>🏦 定存提領模式</h3>
+                    <div class="amount">平日 -100 kcal</div>
+                    <p>平日每天存 100 kcal，週末提領累積金額</p>
+                    <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">適合喜歡週末大餐的用戶</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 統計區域 -->
+    <section class="stats" id="stats">
+        <div class="container">
+            <h2 class="section-title">📈 用戶數據</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h2>10K+</h2>
+                    <p>活躍用戶</p>
+                </div>
+                <div class="stat-item">
+                    <h2>500K+</h2>
+                    <p>飲食記錄</p>
+                </div>
+                <div class="stat-item">
+                    <h2>98%</h2>
+                    <p>用戶滿意度</p>
+                </div>
+                <div class="stat-item">
+                    <h2>24/7</h2>
+                    <p>系統可用性</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 評價區域 -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">💬 用戶評價</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text">"這個系統改變了我的飲食習慣！自訂食物功能非常方便，發薪日模式讓我可以享受週末大餐而不感到內疚。"</p>
+                    <p class="testimonial-author">— 李明，健身愛好者</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text">"飲水提醒功能幫助我養成了良好的飲水習慣。月度報表讓我清楚看到進度，非常激勵人心！"</p>
+                    <p class="testimonial-author">— 王芳，上班族</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text">"定存提領模式完美符合我的生活方式。平日控制飲食，週末享受美食，平衡得恰到好處。"</p>
+                    <p class="testimonial-author">— 陳浩，美食愛好者</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 區域 -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>準備好開始您的健康飲食之旅了嗎？</h2>
+            <p>立即註冊，免費使用所有功能，沒有隱藏費用</p>
+            <a href="/register" class="btn-primary">免費開始</a>
+        </div>
+    </section>
+
+    <!-- 頁腳 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🥗 關於我們</h3>
+                    <p>飲食熱量管理系統致力於幫助用戶實現健康飲食目標，提供智能化的飲食追蹤和管理服務。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>📚 資源</h3>
+                    <ul>
+                        <li><a href="#features">功能介紹</a></li>
+                        <li><a href="#budget">預算管理</a></li>
+                        <li><a href="/register">免費註冊</a></li>
+                        <li><a href="/login">用戶登入</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>🔗 社群</h3>
+                    <ul>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">YouTube</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>⚖️ 法律</h3>
+                    <ul>
+                        <li><a href="#">隱私政策</a></li>
+                        <li><a href="#">服務條款</a></li>
+                        <li><a href="#">聯繫我們</a></li>
+                        <li><a href="#">常見問題</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 飲食熱量管理系統。版權所有。</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
