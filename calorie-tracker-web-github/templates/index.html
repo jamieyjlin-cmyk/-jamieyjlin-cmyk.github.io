@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飲食熱量管理系統</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 側邊欄 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>🥗 熱量管理</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-page="profile">📋 基本資料</button>
+                <button class="nav-btn" data-page="daily-log">🍽️ 每日記帳</button>
+                <button class="nav-btn" data-page="calendar">📊 月曆報表</button>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="btn btn-logout">登出</a>
+            </div>
+        </aside>
+
+        <!-- 主內容區 -->
+        <main class="main-content">
+            <!-- 基本資料設定頁 -->
+            <section id="profile" class="page active">
+                <h2>基本資料設定</h2>
+                <div class="card">
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>身高 (cm)</label>
+                                <input type="number" name="height_cm" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>體重 (kg)</label>
+                                <input type="number" name="weight_kg" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>性別</label>
+                                <select name="gender">
+                                    <option value="">選擇</option>
+                                    <option value="M">男</option>
+                                    <option value="F">女</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>年齡</label>
+                                <input type="number" name="age">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>活動量</label>
+                                <select name="activity_level">
+                                    <option value="sedentary">久坐</option>
+                                    <option value="light">輕度</option>
+                                    <option value="moderate" selected>中度</option>
+                                    <option value="active">高度</option>
+                                    <option value="very_active">極高</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>目標體重 (kg)</label>
+                                <input type="number" name="target_weight_kg" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label>目標日期</label>
+                                <input type="date" name="target_date">
+                            </div>
+                            <div class="form-group">
+                                <label>每日飲水目標 (杯)</label>
+                                <input type="number" name="daily_water_goal_cups" value="8" min="1">
+                                <small style="color: #666; margin-top: 5px; display: block;">✅ 1杯 = 250ml</small>
+                            </div>
+                        </div>
+                        
+                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e0e0e0;">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px; font-size: 16px; color: #333;">💰 預算管理</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>預算模式</label>
+                                <select name="budget_mode" id="budgetMode">
+                                    <option value="none">無特殊預算</option>
+                                    <option value="payday">發薪日模式</option>
+                                    <option value="savings">定存提領模式</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="paydayDayGroup" style="display:none;">
+                                <label>發薪日 (星期)</label>
+                                <select name="payday_day_of_week">
+                                    <option value="0">星期日</option>
+                                    <option value="1">星期一</option>
+                                    <option value="2">星期二</option>
+                                    <option value="3">星期三</option>
+                                    <option value="4">星期四</option>
+                                    <option value="5">星期五</option>
+                                    <option value="6">星期六</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="paydayBonusGroup" style="display:none;">
+                                <label>發薪日特別預算 (kcal)</label>
+                                <input type="number" name="payday_bonus" value="500" min="0" step="50">
+                            </div>
+                            <div class="form-group" id="dailySavingsGroup" style="display:none;">
+                                <label>每日定存 (kcal)</label>
+                                <input type="number" name="daily_savings" value="100" min="0" step="10">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </form>
+                </div>
+                <div id="profileStats" class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">BMR</div>
+                        <div class="stat-value" id="bmrValue">-</div>
+                        <div class="stat-unit">kcal/天</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">TDEE</div>
+                        <div class="stat-value" id="tdeeValue">-</div>
+                        <div class="stat-unit">kcal/天</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">每日預算</div>
+                        <div class="stat-value" id="budgetValue">-</div>
+                        <div class="stat-unit">kcal/天</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 每日飲食記帳頁 -->
+            <section id="daily-log" class="page">
+                <h2>每日飲食記帳</h2>
+                <div class="date-selector">
+                    <button id="prevDay" class="btn btn-sm">← 前一天</button>
+                    <input type="date" id="logDate">
+                    <button id="nextDay" class="btn btn-sm">後一天 →</button>
+                </div>
+                
+                <div class="card">
+                    <h3>新增食物</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>食物類別</label>
+                            <select id="foodCategory">
+                                <option value="fruit">🍎 水果</option>
+                                <option value="vegetable">🥬 蔬菜</option>
+                                <option value="dairy">🥛 乳品</option>
+                                <option value="fat_nut">🥜 油脂與堅果</option>
+                                <option value="protein">🍗 豆魚蛋肉</option>
+                                <option value="grain">🌾 全穀雜糧</option>
+                                <option value="custom">✏️ 自訂食物</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="foodSelectGroup">
+                            <label>食物名稱</label>
+                            <select id="foodSelect"></select>
+                        </div>
+                        <div class="form-group" id="customFoodGroup" style="display:none;">
+                            <label>食物名稱</label>
+                            <input type="text" id="customFoodName" placeholder="輸入食物名稱">
+                        </div>
+                        <div class="form-group">
+                            <label>份量</label>
+                            <input type="number" id="foodQuantity" value="1" step="0.5" min="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>熱量 (kcal)</label>
+                            <input type="number" id="foodCalories">
+                        </div>
+                    </div>
+                    <button id="addFoodBtn" class="btn btn-primary">新增食物</button>
+                </div>
+
+                <div class="card">
+                    <h3>今日記錄</h3>
+                    <div id="dailyLogsList"></div>
+                </div>
+
+                <div class="card">
+                    <h3>飲水量記錄</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>今日飲水 (杯)</label>
+                            <input type="number" id="waterCups" value="0" step="0.5" min="0">
+                            <small style="color: #666; margin-top: 5px; display: block;">✅ 1杯 = 250ml</small>
+                        </div>
+                        <button id="saveWaterBtn" class="btn btn-primary">保存飲水量</button>
+                    </div>
+                    <div id="waterProgress" class="progress-bar">
+                        <div id="waterFill" class="progress-fill"></div>
+                    </div>
+                    <p id="waterText"></p>
+                </div>
+
+                <div class="card">
+                    <h3>每日摘要</h3>
+                    <div id="dailySummary" class="summary-grid"></div>
+                </div>
+            </section>
+
+            <!-- 月曆報表頁 -->
+            <section id="calendar" class="page">
+                <h2>月曆報表</h2>
+                <div class="date-selector">
+                    <button id="prevMonth" class="btn btn-sm">← 上月</button>
+                    <span id="monthDisplay"></span>
+                    <button id="nextMonth" class="btn btn-sm">下月 →</button>
+                </div>
+
+                <div class="card">
+                    <h3>熱量盈虧長條圖</h3>
+                    <div id="calorieChart" style="height: 400px;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>月度統計</h3>
+                    <div id="monthlyStats" class="stats-grid"></div>
+                </div>
+
+                <div class="card">
+                    <h3>飲水達成率</h3>
+                    <div id="waterStats"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
